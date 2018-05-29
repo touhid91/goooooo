@@ -10,8 +10,14 @@ import (
 	"strings"
 )
 
+// ImageWithType transfer object for Image
+type ImageWithType struct {
+	Image image.Image
+	Mime  string
+}
+
 // ReadB64 decodes base64 string to image
-func ReadB64(enc string) (image.Image, error) {
+func ReadB64(enc string) (*ImageWithType, error) {
 	cur := strings.Index(enc, ";base64,")
 	if cur < 0 {
 		return nil, errors.New("unsupported mime type")
@@ -29,12 +35,25 @@ func ReadB64(enc string) (image.Image, error) {
 	switch mime {
 
 	case "image/png":
-		return png.Decode(blob)
+		image, err := png.Decode(blob)
+		return &ImageWithType{
+			Image: image,
+			Mime:  mime,
+		}, err
 
 	case "image/jpeg":
-		return jpeg.Decode(blob)
+		image, err := jpeg.Decode(blob)
+		return &ImageWithType{
+			Image: image,
+			Mime:  mime,
+		}, err
 
 	default:
 		return nil, errors.New("unsupported mime type")
 	}
+}
+
+func ReadImage(image ImageWithType) {
+	buff := new(bytes.Buffer)
+
 }
